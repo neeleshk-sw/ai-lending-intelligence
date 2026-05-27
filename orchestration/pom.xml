@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.ailending</groupId>
+        <artifactId>ai-lending-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>orchestration</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Orchestration</name>
+    <description>
+        Phase 3 — Cross-module process coordination.
+        The top-level coordinator that composes workflow, rule-engine, audit, policy,
+        document-intelligence, and integration into cohesive lending processes.
+        Acts as the seam layer between all Phase 2/3 modules; no business logic lives here.
+    </description>
+
+    <dependencies>
+        <!-- Phase 2 modules -->
+        <dependency>
+            <groupId>com.ailending</groupId>
+            <artifactId>workflow</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ailending</groupId>
+            <artifactId>rule-engine</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ailending</groupId>
+            <artifactId>audit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ailending</groupId>
+            <artifactId>policy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Phase 3 modules -->
+        <dependency>
+            <groupId>com.ailending</groupId>
+            <artifactId>document-intelligence</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ailending</groupId>
+            <artifactId>integration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

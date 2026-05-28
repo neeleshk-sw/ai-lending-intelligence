@@ -1,7 +1,9 @@
 package com.ailending.app.controller;
 
+import com.ailending.common.exception.BaseException;
 import com.ailending.lending.exception.InvalidStatusTransitionException;
 import com.ailending.lending.exception.LoanNotFoundException;
+import com.ailending.workflow.exception.WorkflowException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -72,6 +74,22 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public Map<String, Object> handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Validation error: {}", ex.getMessage());
+        return errorBody(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
+
+    /** HTTP 400 — workflow operation rejected (bad transition, unknown loan, etc.). */
+    @ExceptionHandler(WorkflowException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleWorkflowException(WorkflowException ex) {
+        log.warn("Workflow error: {}", ex.getMessage());
+        return errorBody(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    /** HTTP 422 — catch-all for platform domain validation exceptions (AuditException, PolicyException, etc.). */
+    @ExceptionHandler(BaseException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, Object> handleBaseException(BaseException ex) {
+        log.warn("Domain validation error: {}", ex.getMessage());
         return errorBody(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 

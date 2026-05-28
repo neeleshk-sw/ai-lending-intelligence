@@ -3,7 +3,26 @@
     "allow": [
       "Bash(mvn clean *)",
       "Bash(mvn test *)",
-      "Bash(mvn dependency:list -pl lending)"
+      "Bash(mvn dependency:list -pl lending)",
+      "Bash(jar -tf ~/.m2/repository/org/springframework/ai/spring-ai-pgvector-store/1.0.0-M1/spring-ai-pgvector-store-1.0.0-M1.jar)",
+      "Read(//private/tmp/**)",
+      "Bash(jar xf *)",
+      "Bash(javap -p /tmp/org/springframework/ai/embedding/EmbeddingModel.class)",
+      "Bash(javap -p /tmp/org/springframework/ai/embedding/EmbeddingResponse.class)",
+      "Bash(javap -p /tmp/org/springframework/ai/embedding/EmbeddingRequest.class)",
+      "Bash(javap -p /tmp/org/springframework/ai/embedding/Embedding.class)",
+      "Read(//tmp/org/springframework/ai/embedding/**)",
+      "Bash(jar tf *)",
+      "Bash(javap -c -p /tmp/org/springframework/ai/vectorstore/PgVectorStore.class)",
+      "Bash(javap -verbose -p /tmp/org/springframework/ai/vectorstore/PgVectorStore.class)",
+      "Bash(javap -c -p \"/tmp/org/springframework/ai/vectorstore/PgVectorStore\\\\$1.class\")",
+      "Bash(mvn dependency:tree -pl app -q)",
+      "Bash(mvn dependency:tree -pl app)",
+      "Bash(mvn dependency:resolve -pl app -Dclassifier=test)",
+      "Bash(javap -p org/springframework/ai/vectorstore/PgVectorStore.class)",
+      "Bash(javap -p org/springframework/ai/embedding/EmbeddingModel.class)",
+      "Bash(javap -c -p org/springframework/ai/vectorstore/PgVectorStore.class)",
+      "Bash(javap -verbose org/springframework/ai/vectorstore/PgVectorStore.class)"
     ]
   }
 }

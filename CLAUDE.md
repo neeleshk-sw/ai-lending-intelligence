@@ -63,7 +63,20 @@ ai-core  ←──── ingestion
 | `ai-core` | `com.ailending.aicore` | RAG engine, LLM integration, embeddings, vector store, retrieval, and prompt building. Core infrastructure for AI features. |
 | `ingestion` | `com.ailending.ingestion` | Document parsing, chunking, and embedding preparation. Depends on `ai-core` to store vectors. |
 | `lending` | `com.ailending.lending` | Business use cases: `LoanService`, `RiskAnalysisService`, domain entity `Loan`. Depends on `ai-core` for RAG queries. |
-| `app` | `com.ailending.app` | Spring Boot application entry point (`AiLendingApplication`), REST controllers (`LendingController` at `/api/lending`). |
+| `app` | `com.ailending.app` | Spring Boot entry point, REST controllers, and **concrete provider implementations** (`OllamaLlmProvider`, `OllamaEmbeddingProvider`, `SpringVectorStoreWrapper`) in `app/providers/`. |
+
+### REST API (controllers in `app`)
+
+| Method | Path | Controller | Purpose |
+|---|---|---|---|
+| `POST` | `/api/lending/loans` | `LoanController` | Create loan (returns `loanId`, status = `AI_REVIEW_PENDING`) |
+| `GET` | `/api/lending/loans/{loanId}` | `LoanController` | Fetch loan by ID |
+| `PATCH` | `/api/lending/loans/{loanId}/status` | `LoanController` | Advance loan workflow state |
+| `POST` | `/api/lending/ingest` | `IngestionController` | Upload document (multipart/form-data); runs parse → chunk → embed → store |
+| `POST` | `/api/lending/query` | `QueryController` | RAG query — returns answer + sources + confidence (NFR-5) |
+| `GET` | `/health` | `HealthController` | Liveness check |
+
+`LendingController` is an empty placeholder retained for reference; all endpoints have moved to the focused controllers above.
 
 ### RAG pipeline (`ai-core`)
 
@@ -77,10 +90,13 @@ The end-to-end Retrieval-Augmented Generation flow is orchestrated by `RagEngine
 
 ### Key design conventions
 
-- `LlmProvider`, `EmbeddingProvider`, and `VectorStore` are interfaces — swap implementations without touching callers.
+- `LlmProvider`, `EmbeddingProvider`, and `VectorStore` are interfaces defined in `ai-core` — concrete implementations live in `app/providers/` so `ai-core` stays free of Spring AI provider starters.
+- `ai-core`'s `pom.xml` only pulls in `spring-boot-starter` (annotations, DI). The Ollama and pgvector starters are wired in `app/pom.xml` only.
+- Templates are **registered at runtime**, not hard-coded in `ai-core`. `PromptTemplateConfig` (`lending` module, `@PostConstruct`) registers the four named templates (`default`, `loan-summary`, `underwriting`, `policy-qa`) into `RagEngine` on startup.
 - `RagEngine.execute()` performs a graceful-degradation check (`llmProvider.isAvailable()`) before doing any work.
 - `RagRequest` carries optional metadata filters that flow through to `RetrievalRequest` and then to `SearchRequest` for pgvector filtering.
 - Confidence score in `RagResponse` is a heuristic: average similarity score across the top-K hits, clamped to [0, 1].
+- Unit tests use `MockMvcBuilders.standaloneSetup()` with Mockito mocks — no Spring context, Ollama, or pgvector required to run them.
 
 ### Infrastructure dependencies (required at runtime)
 
@@ -109,9 +125,9 @@ The end-to-end Retrieval-Augmented Generation flow is orchestrated by `RagEngine
 | AI summarization | < 8 seconds |
 | Policy Q&A | < 5 seconds |
 
-### Planned expanded modules (not yet created)
+### Phase 2/3 modules (scaffolded stubs)
 
-The TDD defines these additional modules for Phase 2/3: `workflow/` (Camunda/Temporal), `rule-engine/` (Drools), `audit/`, `policy/`, `orchestration/`, `document-intelligence/`, `integration/`. New feature work should go into one of these future modules rather than bloating `lending/` or `app/`.
+`workflow/` (Camunda/Temporal), `rule-engine/` (Drools), `audit/`, `policy/`, `orchestration/`, `document-intelligence/`, and `integration/` exist in the Maven build but contain only a `package-info.java`. New feature work should go into the appropriate stub module rather than bloating `lending/` or `app/`. `orchestration` is declared last in the root `pom.xml` because it will depend on all other Phase 2/3 modules.
 
 ### Reference documents
 
